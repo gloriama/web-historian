@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
+var http = require('http');
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -43,17 +44,57 @@ exports.readListOfUrls = function(callback) {
 
 exports.isUrlInList = function(url, callback) {
   //call readListOfUrls with callback to return true/false
+  exports.readListOfUrls(function(urls) {
+    var isInList = _.contains(urls, url);
+    return callback(isInList);
+  });
 };
 
 exports.addUrlToList = function(url, callback) {
-  //append '\n' + url to sites.txt
+  //call appendFile on exports.paths.list with '\n' + url
+  fs.appendFile(exports.paths.list, '\n' + url, function(err) {
+    if (err) {
+      throw err;
+    } else {
+      callback();
+    }
+  });
 };
 
 exports.isUrlArchived = function(url, callback) {
   //check for existence of exports.paths.archivedSites/[url]
+  fs.exists(exports.paths.archivedSites + '/' + url, callback);
+
 };
 
 exports.downloadUrls = function(urls) {
-  //filter urls by !isUrlArchived
-  //for each, call htmlfetcher.js(?) to save the url to exports.paths.archivedSites/[url]
+
+  _.each(urls, function(url) {
+    var options = {
+      hostname: url,
+      method: 'GET',
+      headers: {}
+    };
+
+
+
+    var request = http.request(options, function (response) {
+      var responseBody = "";
+      response.on('data', function (chunk) {
+        responseBody += chunk.toString();
+
+      });
+      response.on('end', function () {
+        fs.writeFile(exports.paths.archivedSites + '/' + url, responseBody, function (err) {
+          if (err) throw err;
+        });
+      });
+    });
+
+    request.end();
+
+  });
+  //and save the contents to exports.paths.archivedSites/[url] <-- htmlfetcher
+
+
 };
