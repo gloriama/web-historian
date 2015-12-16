@@ -25,17 +25,35 @@ exports.initialize = function(pathsObj) {
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
 
-exports.readListOfUrls = function() {
+exports.readListOfUrls = function(callback) {
+  callback = callback || _.identity;
+  //read the file
+  var urls;
+  //save the urls to urls (which will be an array), specifying utf8 encoding
+  //and call the given callback on it;
+  fs.readFile(exports.paths.list, 'utf8', function (err, data) {
+    if (err) {
+      throw err;
+    } else {
+      urls = data.split('\n');
+      return callback(urls);
+    }
+  })
 };
 
-exports.isUrlInList = function() {
+exports.isUrlInList = function(url, callback) {
+  //call readListOfUrls with callback to return true/false
 };
 
-exports.addUrlToList = function() {
+exports.addUrlToList = function(url, callback) {
+  //append '\n' + url to sites.txt
 };
 
-exports.isUrlArchived = function() {
+exports.isUrlArchived = function(url, callback) {
+  //check for existence of exports.paths.archivedSites/[url]
 };
 
-exports.downloadUrls = function() {
+exports.downloadUrls = function(urls) {
+  //filter urls by !isUrlArchived
+  //for each, call htmlfetcher.js(?) to save the url to exports.paths.archivedSites/[url]
 };
