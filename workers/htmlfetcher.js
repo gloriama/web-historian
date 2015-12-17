@@ -2,7 +2,9 @@
 // that are waiting.
 
 
-// var archive = require('./archive-helpers')
+var archive = require('../helpers/archive-helpers');
 
-// every time i get a request dispatched to me by the server,
-//   archive.downloadUrls();
+archive.readListOfUrls(function(urls) {
+  console.log(urls);
+  archive.downloadUrls(urls);
+});
