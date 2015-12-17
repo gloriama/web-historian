@@ -4,7 +4,8 @@
 
 var archive = require('../helpers/archive-helpers');
 
-archive.readListOfUrls(function(urls) {
-  console.log(urls);
-  archive.downloadUrls(urls);
-});
+archive.readListOfUrls(archive.downloadUrls);
+
+//to set up cron job on local machine, to run the above command every minute:
+  //run "crontab -e" from terminal
+  //add "* * * * * /usr/local/bin/node /Users/student/Desktop/2015-11-web-historian/workers/htmlfetcher.js"
