@@ -52,10 +52,10 @@ exports.isUrlInList = function(url, callback) {
 
 exports.addUrlToList = function(url, callback) {
   //call appendFile on exports.paths.list with '\n' + url
-  fs.appendFile(exports.paths.list, '\n' + url, function(err) {
+  fs.appendFile(exports.paths.list, url + '\n', function(err) {
     if (err) {
       throw err;
-    } else {
+    } else if (callback) {
       callback();
     }
   });
@@ -64,7 +64,6 @@ exports.addUrlToList = function(url, callback) {
 exports.isUrlArchived = function(url, callback) {
   //check for existence of exports.paths.archivedSites/[url]
   fs.exists(exports.paths.archivedSites + '/' + url, callback);
-
 };
 
 exports.downloadUrls = function(urls) {
@@ -76,13 +75,10 @@ exports.downloadUrls = function(urls) {
       headers: {}
     };
 
-
-
     var request = http.request(options, function (response) {
       var responseBody = "";
       response.on('data', function (chunk) {
         responseBody += chunk.toString();
-
       });
       response.on('end', function () {
         fs.writeFile(exports.paths.archivedSites + '/' + url, responseBody, function (err) {
@@ -94,7 +90,5 @@ exports.downloadUrls = function(urls) {
     request.end();
 
   });
-  //and save the contents to exports.paths.archivedSites/[url] <-- htmlfetcher
-
 
 };
