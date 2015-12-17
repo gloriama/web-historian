@@ -32,7 +32,7 @@ exports.handleRequest = function (req, res) {
         }
       });
     }    
-  } else if (req.method === 'POST' && req.url === '/') {
+  } else if (req.method === 'POST') {
     //check if url is in sites.txt
     req.on('data', function(data) {
       var url = data.toString().slice(4);
