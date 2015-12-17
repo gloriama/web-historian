@@ -35,14 +35,25 @@ exports.handleRequest = function (req, res) {
   } else if (req.method === 'POST' && req.url === '/') {
     //check if url is in sites.txt
     req.on('data', function(data) {
-      var urlToAdd = data.toString().slice(4);
-      archive.isUrlInList(urlToAdd, function(is) 
+      var url = data.toString().slice(4);
+      archive.isUrlInList(url, function(is) 
       {
+        //add to list if not already in there
         if (!is) {
-          archive.addUrlToList(urlToAdd);
+          archive.addUrlToList(url);
         }
-        res.writeHead(302, {});
-        res.end();
+
+        //redirect to page if already archived, otherwise to loading.html
+        archive.isUrlArchived(url, function(isArchived) {
+          var redirectUrl;
+          if (isArchived) {
+            redirectUrl = '/' + url;
+          } else {
+            redirectUrl = '/loading.html';
+          }
+          res.writeHead(302, {'Location': 'http://127.0.0.1:8080' + redirectUrl});
+          res.end();
+        });
       });
     });
   } 
