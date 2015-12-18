@@ -21,30 +21,35 @@ exports.handleRequest = function (req, res) {
       serveFileContents(pathToStaticFile + url, res);
     } else {
       pathToStaticFile = archive.paths.archivedSites;
-      archive.isUrlArchived(url, function(exists) {
-        if (exists) {
-          //repond with 200 and the file contents
-          serveFileContents(pathToStaticFile + url, res);
-        } else {
-        // respond with 404
-          res.writeHead(404, {'Content-Type': 'text/plain'});
-          res.end('404: Not Found');
-        }
-      });
+      archive.isUrlArchived(url)
+        .then(function(exists) {
+          if (exists) {
+            //repond with 200 and the file contents
+            serveFileContents(pathToStaticFile + url, res);
+          } else {
+          // respond with 404
+            res.writeHead(404, {'Content-Type': 'text/plain'});
+            res.end('404: Not Found');
+          }
+        });
     }    
   } else if (req.method === 'POST') {
     //check if url is in sites.txt
     req.on('data', function(data) {
       var url = data.toString().slice(4);
-      archive.isUrlInList(url, function(is) 
-      {
-        //add to list if not already in there
-        if (!is) {
-          archive.addUrlToList(url);
-        }
-
-        //redirect to page if already archived, otherwise to loading.html
-        archive.isUrlArchived(url, function(isArchived) {
+      archive.isUrlInList(url)
+        .then(function(is) {
+          //add to list if not already in there
+          if (!is) {
+            archive.addUrlToList(url);
+          }
+          return;
+        })
+        .then(function() {
+          //redirect to page if already archived, otherwise to loading.html
+          return archive.isUrlArchived(url);
+        })
+        .then(function(isArchived) {
           var redirectUrl;
           if (isArchived) {
             redirectUrl = '/' + url;
@@ -53,8 +58,10 @@ exports.handleRequest = function (req, res) {
           }
           res.writeHead(302, {'Location': 'http://127.0.0.1:8080' + redirectUrl});
           res.end();
-        });
-      });
+        })
+        .catch(function (err) {
+          console.log(err);
+        });   
     });
   } 
   //else if (req.method === 'OPTIONS') {

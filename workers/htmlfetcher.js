@@ -4,7 +4,13 @@
 
 var archive = require('../helpers/archive-helpers');
 
-archive.readListOfUrls(archive.downloadUrls);
+archive.readListOfUrls()
+  .then(function(urls) {
+    archive.downloadUrls(urls)
+  })
+  .catch(function(err) {
+    console.log(err);
+  });
 
 //to set up cron job on local machine, to run the above command every minute:
   //run "crontab -e" from terminal
